@@ -2,11 +2,13 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "spruce-and-spirit-home-care",
   "compatibility_date": "2026-05-15",
+  "main": "src/index.js",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "spruce-and-spirit-home-care"
+    "directory": "spruce-and-spirit-home-care",
+    "binding": "ASSETS"
   },
   "compatibility_flags": [
     "nodejs_compat"

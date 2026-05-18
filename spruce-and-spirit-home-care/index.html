@@ -77,13 +77,11 @@
           </div>
           <div class="text-stack">
             <p>
-              Spruce &amp; Spirit Home Care was created for people who need more than a standard clean. With experience as a
-              certified support worker, Tegan brings patience, understanding, and practical care into homes that need
-              support, organisation, and a little breathing room.
+              Spruce &amp; Spirit Home Care -- Where we bring refreshing clarity, meticulous care and a supportive touch straight to your door step.
+              We understand that a well-maintained home is the foundation for a vibrant, peaceful life.
             </p>
             <p>
-              Whether it's a once-off reset, regular cleaning support, or help creating systems that make daily life
-              easier, the aim is always the same: to help your home feel calmer, safer, and easier to live in.
+              That's why we've designed a holistic, all-in-one approach to property and lifestyle support, ensuring both your living spaces and your well-being are always looked after.
             </p>
           </div>
         </div>
@@ -97,27 +95,22 @@
           </div>
           <div class="card-grid service-grid">
             <article class="card service-card">
-              <span class="card-number">01</span>
-              <h3>General Home Cleaning and Garden Upkeep</h3>
-              <p>Regular or once-off cleaning support to help keep your home fresh, functional, and manageable.</p>
+              <h3>Spruce (Home & Garden):</h3>
+              <p>From premium, detailed house cleaning to professional lawn mowing and garden care</p>
             </article>
             <article class="card service-card">
-              <span class="card-number">02</span>
               <h3>Decluttering &amp; Organising</h3>
               <p>Support with sorting, simplifying, and creating practical systems that suit real life.</p>
             </article>
             <article class="card service-card">
-              <span class="card-number">03</span>
               <h3>Home Reset Cleans</h3>
               <p>A deeper, more focused reset for spaces that feel overwhelming or hard to keep on top of.</p>
             </article>
             <article class="card service-card">
-              <span class="card-number">04</span>
               <h3>Practical Home Support</h3>
               <p>Flexible help with everyday home tasks, tailored to what you need most.</p>
             </article>
             <article class="card service-card">
-              <span class="card-number">05</span>
               <h3>Ongoing Support Visits</h3>
               <p>Regular visits for clients who benefit from steady, reliable support in the home.</p>
             </article>
@@ -265,12 +258,12 @@
             </details>
             <details>
               <summary>What areas do you service?</summary>
-              <p>Service area details coming soon.</p>
+              <p>Yarrabilba, QLD and surrounding suburbs. Please get in touch to confirm.</p>
             </details>
             <details>
               <summary>How do I book?</summary>
               <p>
-                Send an enquiry through the contact form and Tegan will get back to you to discuss what kind of support
+                Send an enquiry through the contact form and I will get back to you to discuss what kind of support
                 would be the best fit.
               </p>
             </details>
@@ -285,13 +278,13 @@
             <h2>Start with a simple enquiry.</h2>
             <p>Tell us a little about what you need. No judgement, no pressure - just a starting point.</p>
             <div class="contact-details" aria-label="Direct contact details">
-              <p><strong>Email:</strong> <a href="mailto:hello@spruceandspirithomecare.com">hello@spruceandspirithomecare.com</a></p>
-              <p><strong>Phone:</strong> Add phone number</p>
-              <p><strong>Service Area:</strong> Add service area</p>
+              <p><strong>Email:</strong> <a href="mailto:hello@spruceandspirithomecare.com">spruceandspirit@outlook.com</a></p>
+              <p><strong>Phone:</strong> 0429 636 108</p>
+              <p><strong>Service Area:</strong> Yarrabilba, QLD and surrounds</p>
             </div>
           </div>
 
-          <form class="contact-form" action="#" method="post">
+          <form class="contact-form" action="/api/contact" method="post" novalidate>
             <div class="form-field">
               <label for="name">Name</label>
               <input type="text" id="name" name="name" autocomplete="name" required />
@@ -302,15 +295,15 @@
             </div>
             <div class="form-field">
               <label for="phone">Phone</label>
-              <input type="tel" id="phone" name="phone" autocomplete="tel" />
+              <input type="tel" id="phone" name="phone" autocomplete="tel" required />
             </div>
             <div class="form-field">
-              <label for="location">Suburb / Location</label>
-              <input type="text" id="location" name="location" autocomplete="address-level2" />
+              <label for="suburb">Suburb / Location</label>
+              <input type="text" id="suburb" name="suburb" autocomplete="address-level2" required />
             </div>
             <div class="form-field">
               <label for="support-type">Type of support needed</label>
-              <select id="support-type" name="support-type">
+              <select id="support-type" name="supportType" required>
                 <option>General cleaning</option>
                 <option>Decluttering / organising</option>
                 <option>Home reset</option>
@@ -320,7 +313,7 @@
             </div>
             <div class="form-field">
               <label for="contact-method">Preferred contact method</label>
-              <select id="contact-method" name="contact-method">
+              <select id="contact-method" name="preferredContact" required>
                 <option>Email</option>
                 <option>Phone</option>
                 <option>Text message</option>
@@ -328,9 +321,13 @@
             </div>
             <div class="form-field form-field-full">
               <label for="message">Message</label>
-              <textarea id="message" name="message" rows="5"></textarea>
+              <textarea id="message" name="message" rows="5" required></textarea>
             </div>
-            <p class="form-note"></p>
+            <div class="form-field honeypot" aria-hidden="true">
+              <label for="company">Company</label>
+              <input type="text" id="company" name="company" tabindex="-1" autocomplete="off" />
+            </div>
+            <p class="form-note" role="status" aria-live="polite"></p>
             <button class="button form-button" type="submit">Send Enquiry</button>
           </form>
         </div>
@@ -353,9 +350,9 @@
           <a href="#contact">Contact</a>
         </nav>
         <div class="footer-contact">
-          <p><strong>Email:</strong> hello@spruceandspirithomecare.com</p>
-          <p><strong>Phone:</strong> Add phone number</p>
-          <p><strong>Service Area:</strong> Add service area</p>
+          <p><strong>Email:</strong> spruceandspirit@outlook.com</p>
+          <p><strong>Phone:</strong> 0429 636 108</p>
+          <p><strong>Service Area:</strong> Yarrabilba, QLD and surrounds</p>
         </div>
       </div>
       <p class="copyright">&copy; 2026 Spruce &amp; Spirit Home Care. All rights reserved.</p>
