@@ -96,3 +96,55 @@ test("POST /api/contact sends through Resend when configured", async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+test("POST /api/contact logs Resend failures without exposing secrets to the client", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalError = console.error;
+  const loggedMessages = [];
+
+  globalThis.fetch = async () =>
+    new Response(JSON.stringify({ message: "The from address is not verified." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  console.error = (...args) => loggedMessages.push(args);
+
+  try {
+    const request = new Request("https://example.com/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Test Person",
+        email: "test@example.com",
+        phone: "0400 000 000",
+        suburb: "Yarrabilba",
+        supportType: "General cleaning",
+        preferredContact: "Email",
+        message: "Hello",
+      }),
+    });
+
+    const response = await worker.fetch(request, {
+      RESEND_API_KEY: "secret-value",
+      CONTACT_TO_EMAIL: "to@example.com",
+      CONTACT_FROM_EMAIL: "from@example.com",
+      ASSETS: { fetch: () => new Response("asset") },
+    });
+
+    assert.equal(response.status, 502);
+    assert.deepEqual(await response.json(), { error: "Unable to send enquiry." });
+    assert.deepEqual(loggedMessages, [
+      [
+        "Resend email send failed",
+        {
+          status: 403,
+          body: '{"message":"The from address is not verified."}',
+        },
+      ],
+    ]);
+    assert.equal(JSON.stringify(loggedMessages).includes("secret-value"), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalError;
+  }
+});

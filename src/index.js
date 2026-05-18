@@ -88,6 +88,13 @@ async function handleContactRequest(request, env) {
   });
 
   if (!resendResponse.ok) {
+    const resendErrorBody = await resendResponse.text();
+
+    console.error("Resend email send failed", {
+      status: resendResponse.status,
+      body: resendErrorBody,
+    });
+
     return jsonResponse({ error: "Unable to send enquiry." }, 502);
   }
 
