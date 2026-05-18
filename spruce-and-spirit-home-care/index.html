@@ -284,7 +284,7 @@
             </div>
           </div>
 
-          <form class="contact-form" action="#" method="post">
+          <form class="contact-form" action="/api/contact" method="post" novalidate>
             <div class="form-field">
               <label for="name">Name</label>
               <input type="text" id="name" name="name" autocomplete="name" required />
@@ -295,15 +295,15 @@
             </div>
             <div class="form-field">
               <label for="phone">Phone</label>
-              <input type="tel" id="phone" name="phone" autocomplete="tel" />
+              <input type="tel" id="phone" name="phone" autocomplete="tel" required />
             </div>
             <div class="form-field">
-              <label for="location">Suburb / Location</label>
-              <input type="text" id="location" name="location" autocomplete="address-level2" />
+              <label for="suburb">Suburb / Location</label>
+              <input type="text" id="suburb" name="suburb" autocomplete="address-level2" required />
             </div>
             <div class="form-field">
               <label for="support-type">Type of support needed</label>
-              <select id="support-type" name="support-type">
+              <select id="support-type" name="supportType" required>
                 <option>General cleaning</option>
                 <option>Decluttering / organising</option>
                 <option>Home reset</option>
@@ -313,7 +313,7 @@
             </div>
             <div class="form-field">
               <label for="contact-method">Preferred contact method</label>
-              <select id="contact-method" name="contact-method">
+              <select id="contact-method" name="preferredContact" required>
                 <option>Email</option>
                 <option>Phone</option>
                 <option>Text message</option>
@@ -321,9 +321,13 @@
             </div>
             <div class="form-field form-field-full">
               <label for="message">Message</label>
-              <textarea id="message" name="message" rows="5"></textarea>
+              <textarea id="message" name="message" rows="5" required></textarea>
             </div>
-            <p class="form-note"></p>
+            <div class="form-field honeypot" aria-hidden="true">
+              <label for="company">Company</label>
+              <input type="text" id="company" name="company" tabindex="-1" autocomplete="off" />
+            </div>
+            <p class="form-note" role="status" aria-live="polite"></p>
             <button class="button form-button" type="submit">Send Enquiry</button>
           </form>
         </div>

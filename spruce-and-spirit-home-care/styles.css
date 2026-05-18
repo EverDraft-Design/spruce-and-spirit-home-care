@@ -605,9 +605,30 @@ textarea {
   font-size: 0.94rem;
 }
 
+.form-note.is-success {
+  color: #2f6b46;
+}
+
+.form-note.is-error {
+  color: #9a3c2f;
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .form-button {
   width: 100%;
   border: 0;
+}
+
+.form-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
 }
 
 .site-footer {
