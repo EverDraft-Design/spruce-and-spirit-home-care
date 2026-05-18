@@ -19,7 +19,7 @@ test("contact form submits to the Worker endpoint without hash navigation", asyn
   assert.match(script, /fetch\("\/api\/contact"/);
 });
 
-test("POST /api/contact logs binding presence and returns MISSING_ENV when email configuration is missing", async () => {
+test("POST /api/contact logs handler entry and binding values before returning MISSING_ENV", async () => {
   const originalLog = console.log;
   const loggedMessages = [];
 
@@ -52,12 +52,20 @@ test("POST /api/contact logs binding presence and returns MISSING_ENV when email
       code: "MISSING_ENV",
     });
     assert.deepEqual(loggedMessages, [
+      ["contact handler reached"],
       [
         "Contact form environment status",
         {
           RESEND_API_KEY: false,
           CONTACT_TO_EMAIL: true,
           CONTACT_FROM_EMAIL: false,
+        },
+      ],
+      [
+        "Contact form email configuration",
+        {
+          CONTACT_TO_EMAIL: "to@example.com",
+          CONTACT_FROM_EMAIL: undefined,
         },
       ],
     ]);
@@ -82,12 +90,15 @@ test("GET requests still fall through to the static asset binding", async () => 
 
 test("POST /api/contact sends through Resend when configured", async () => {
   const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
   let resendRequest;
+  const loggedMessages = [];
 
   globalThis.fetch = async (url, options) => {
     resendRequest = { url, options };
     return new Response(null, { status: 200 });
   };
+  console.log = (...args) => loggedMessages.push(args);
 
   try {
     const request = new Request("https://example.com/api/contact", {
@@ -115,14 +126,37 @@ test("POST /api/contact sends through Resend when configured", async () => {
     assert.deepEqual(await response.json(), { ok: true });
     assert.equal(resendRequest.url, "https://api.resend.com/emails");
     assert.equal(resendRequest.options.method, "POST");
+    assert.deepEqual(loggedMessages, [
+      ["contact handler reached"],
+      [
+        "Contact form environment status",
+        {
+          RESEND_API_KEY: true,
+          CONTACT_TO_EMAIL: true,
+          CONTACT_FROM_EMAIL: true,
+        },
+      ],
+      [
+        "Contact form email configuration",
+        {
+          CONTACT_TO_EMAIL: "to@example.com",
+          CONTACT_FROM_EMAIL: "from@example.com",
+        },
+      ],
+      ["about to call Resend"],
+      ["Resend response received", { status: 200, body: "" }],
+    ]);
   } finally {
     globalThis.fetch = originalFetch;
+    console.log = originalLog;
   }
 });
 
 test("POST /api/contact logs Resend failures without exposing secrets to the client", async () => {
   const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
   const originalError = console.error;
+  const loggedInfoMessages = [];
   const loggedMessages = [];
 
   globalThis.fetch = async () =>
@@ -130,6 +164,7 @@ test("POST /api/contact logs Resend failures without exposing secrets to the cli
       status: 403,
       headers: { "Content-Type": "application/json" },
     });
+  console.log = (...args) => loggedInfoMessages.push(args);
   console.error = (...args) => loggedMessages.push(args);
 
   try {
@@ -156,6 +191,32 @@ test("POST /api/contact logs Resend failures without exposing secrets to the cli
 
     assert.equal(response.status, 502);
     assert.deepEqual(await response.json(), { error: "Unable to send enquiry.", code: "RESEND_ERROR" });
+    assert.deepEqual(loggedInfoMessages, [
+      ["contact handler reached"],
+      [
+        "Contact form environment status",
+        {
+          RESEND_API_KEY: true,
+          CONTACT_TO_EMAIL: true,
+          CONTACT_FROM_EMAIL: true,
+        },
+      ],
+      [
+        "Contact form email configuration",
+        {
+          CONTACT_TO_EMAIL: "to@example.com",
+          CONTACT_FROM_EMAIL: "from@example.com",
+        },
+      ],
+      ["about to call Resend"],
+      [
+        "Resend response received",
+        {
+          status: 403,
+          body: '{"message":"The from address is not verified."}',
+        },
+      ],
+    ]);
     assert.deepEqual(loggedMessages, [
       [
         "Resend email send failed",
@@ -168,6 +229,7 @@ test("POST /api/contact logs Resend failures without exposing secrets to the cli
     assert.equal(JSON.stringify(loggedMessages).includes("secret-value"), false);
   } finally {
     globalThis.fetch = originalFetch;
+    console.log = originalLog;
     console.error = originalError;
   }
 });
@@ -186,6 +248,74 @@ test("POST /api/contact returns INVALID_REQUEST for malformed JSON", async () =>
   assert.equal(response.status, 400);
   assert.deepEqual(await response.json(), {
     error: "Invalid request body.",
-    code: "INVALID_REQUEST",
+    code: "INVALID_JSON",
   });
+});
+
+test("POST /api/contact logs thrown Resend fetch failures and returns RESEND_FETCH_FAILED", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const originalError = console.error;
+  const loggedInfoMessages = [];
+  const loggedErrorMessages = [];
+
+  globalThis.fetch = async () => {
+    throw new Error("network unavailable");
+  };
+  console.log = (...args) => loggedInfoMessages.push(args);
+  console.error = (...args) => loggedErrorMessages.push(args);
+
+  try {
+    const request = new Request("https://example.com/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Test Person",
+        email: "test@example.com",
+        phone: "0400 000 000",
+        suburb: "Yarrabilba",
+        supportType: "General cleaning",
+        preferredContact: "Email",
+        message: "Hello",
+      }),
+    });
+
+    const response = await worker.fetch(request, {
+      RESEND_API_KEY: "secret-value",
+      CONTACT_TO_EMAIL: "to@example.com",
+      CONTACT_FROM_EMAIL: "from@example.com",
+      ASSETS: { fetch: () => new Response("asset") },
+    });
+
+    assert.equal(response.status, 502);
+    assert.deepEqual(await response.json(), {
+      error: "Unable to send enquiry.",
+      code: "RESEND_FETCH_FAILED",
+    });
+    assert.deepEqual(loggedInfoMessages, [
+      ["contact handler reached"],
+      [
+        "Contact form environment status",
+        {
+          RESEND_API_KEY: true,
+          CONTACT_TO_EMAIL: true,
+          CONTACT_FROM_EMAIL: true,
+        },
+      ],
+      [
+        "Contact form email configuration",
+        {
+          CONTACT_TO_EMAIL: "to@example.com",
+          CONTACT_FROM_EMAIL: "from@example.com",
+        },
+      ],
+      ["about to call Resend"],
+    ]);
+    assert.deepEqual(loggedErrorMessages, [["Resend fetch failed", { message: "network unavailable" }]]);
+    assert.equal(JSON.stringify(loggedErrorMessages).includes("secret-value"), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.log = originalLog;
+    console.error = originalError;
+  }
 });
