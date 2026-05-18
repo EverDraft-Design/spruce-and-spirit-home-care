@@ -36,12 +36,14 @@ function buildEmailHtml(fields) {
 }
 
 async function handleContactRequest(request, env) {
+  console.log("contact handler reached");
+
   let payload;
 
   try {
     payload = await request.json();
   } catch {
-    return jsonResponse({ error: "Invalid request body." }, 400);
+    return jsonResponse({ error: "Invalid request body.", code: "INVALID_JSON" }, 400);
   }
 
   const fields = {
@@ -60,42 +62,71 @@ async function handleContactRequest(request, env) {
   }
 
   if (!fields.name || !fields.email || !fields.message) {
-    return jsonResponse({ error: "Name, email, and message are required." }, 400);
+    return jsonResponse({ error: "Name, email, and message are required.", code: "INVALID_REQUEST" }, 400);
   }
 
   if (!EMAIL_PATTERN.test(fields.email)) {
-    return jsonResponse({ error: "Please provide a valid email address." }, 400);
+    return jsonResponse({ error: "Please provide a valid email address.", code: "INVALID_REQUEST" }, 400);
   }
 
-  if (!env.RESEND_API_KEY || !env.CONTACT_TO_EMAIL || !env.CONTACT_FROM_EMAIL) {
-    return jsonResponse({ error: "Contact form email is not configured." }, 500);
+  const environmentStatus = {
+    RESEND_API_KEY: Boolean(env.RESEND_API_KEY),
+    CONTACT_TO_EMAIL: Boolean(env.CONTACT_TO_EMAIL),
+    CONTACT_FROM_EMAIL: Boolean(env.CONTACT_FROM_EMAIL),
+  };
+
+  console.log("Contact form environment status", environmentStatus);
+  console.log("Contact form email configuration", {
+    CONTACT_TO_EMAIL: env.CONTACT_TO_EMAIL,
+    CONTACT_FROM_EMAIL: env.CONTACT_FROM_EMAIL,
+  });
+
+  if (!environmentStatus.RESEND_API_KEY || !environmentStatus.CONTACT_TO_EMAIL || !environmentStatus.CONTACT_FROM_EMAIL) {
+    return jsonResponse({ error: "Contact form email is not configured.", code: "MISSING_ENV" }, 500);
   }
 
-  const resendResponse = await fetch(RESEND_API_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-      "User-Agent": "spruce-and-spirit-home-care-worker",
-    },
-    body: JSON.stringify({
-      from: `Spruce & Spirit Home Care <${env.CONTACT_FROM_EMAIL}>`,
-      to: [env.CONTACT_TO_EMAIL],
-      reply_to: fields.email,
-      subject: `New Spruce & Spirit enquiry from ${fields.name}`,
-      html: buildEmailHtml(fields),
-    }),
+  let resendResponse;
+
+  console.log("about to call Resend");
+
+  try {
+    resendResponse = await fetch(RESEND_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+        "User-Agent": "spruce-and-spirit-home-care-worker",
+      },
+      body: JSON.stringify({
+        from: `Spruce & Spirit Home Care <${env.CONTACT_FROM_EMAIL}>`,
+        to: [env.CONTACT_TO_EMAIL],
+        reply_to: fields.email,
+        subject: `New Spruce & Spirit enquiry from ${fields.name}`,
+        html: buildEmailHtml(fields),
+      }),
+    });
+  } catch (error) {
+    console.error("Resend fetch failed", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+
+    return jsonResponse({ error: "Unable to send enquiry.", code: "RESEND_FETCH_FAILED" }, 502);
+  }
+
+  const resendResponseBody = await resendResponse.text();
+
+  console.log("Resend response received", {
+    status: resendResponse.status,
+    body: resendResponseBody,
   });
 
   if (!resendResponse.ok) {
-    const resendErrorBody = await resendResponse.text();
-
     console.error("Resend email send failed", {
       status: resendResponse.status,
-      body: resendErrorBody,
+      body: resendResponseBody,
     });
 
-    return jsonResponse({ error: "Unable to send enquiry." }, 502);
+    return jsonResponse({ error: "Unable to send enquiry.", code: "RESEND_ERROR" }, 502);
   }
 
   return jsonResponse({ ok: true });
