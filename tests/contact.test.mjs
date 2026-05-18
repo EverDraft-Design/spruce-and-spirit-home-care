@@ -19,7 +19,12 @@ test("contact form submits to the Worker endpoint without hash navigation", asyn
   assert.match(script, /fetch\("\/api\/contact"/);
 });
 
-test("POST /api/contact returns JSON when email configuration is missing", async () => {
+test("POST /api/contact logs binding presence and returns MISSING_ENV when email configuration is missing", async () => {
+  const originalLog = console.log;
+  const loggedMessages = [];
+
+  console.log = (...args) => loggedMessages.push(args);
+
   const request = new Request("https://example.com/api/contact", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -34,13 +39,31 @@ test("POST /api/contact returns JSON when email configuration is missing", async
     }),
   });
 
-  const response = await worker.fetch(request, {
-    ASSETS: { fetch: () => new Response("asset") },
-  });
+  try {
+    const response = await worker.fetch(request, {
+      CONTACT_TO_EMAIL: "to@example.com",
+      ASSETS: { fetch: () => new Response("asset") },
+    });
 
-  assert.equal(response.status, 500);
-  assert.equal(response.headers.get("content-type"), "application/json");
-  assert.deepEqual(await response.json(), { error: "Contact form email is not configured." });
+    assert.equal(response.status, 500);
+    assert.equal(response.headers.get("content-type"), "application/json");
+    assert.deepEqual(await response.json(), {
+      error: "Contact form email is not configured.",
+      code: "MISSING_ENV",
+    });
+    assert.deepEqual(loggedMessages, [
+      [
+        "Contact form environment status",
+        {
+          RESEND_API_KEY: false,
+          CONTACT_TO_EMAIL: true,
+          CONTACT_FROM_EMAIL: false,
+        },
+      ],
+    ]);
+  } finally {
+    console.log = originalLog;
+  }
 });
 
 test("GET requests still fall through to the static asset binding", async () => {
@@ -132,7 +155,7 @@ test("POST /api/contact logs Resend failures without exposing secrets to the cli
     });
 
     assert.equal(response.status, 502);
-    assert.deepEqual(await response.json(), { error: "Unable to send enquiry." });
+    assert.deepEqual(await response.json(), { error: "Unable to send enquiry.", code: "RESEND_ERROR" });
     assert.deepEqual(loggedMessages, [
       [
         "Resend email send failed",
@@ -147,4 +170,22 @@ test("POST /api/contact logs Resend failures without exposing secrets to the cli
     globalThis.fetch = originalFetch;
     console.error = originalError;
   }
+});
+
+test("POST /api/contact returns INVALID_REQUEST for malformed JSON", async () => {
+  const request = new Request("https://example.com/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: "{not-json",
+  });
+
+  const response = await worker.fetch(request, {
+    ASSETS: { fetch: () => new Response("asset") },
+  });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), {
+    error: "Invalid request body.",
+    code: "INVALID_REQUEST",
+  });
 });
