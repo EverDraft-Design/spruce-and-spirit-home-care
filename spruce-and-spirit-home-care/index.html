@@ -96,7 +96,7 @@
             <article class="card service-card">
               <p class="service-label">Spruce</p>
               <h3>Home and Garden</h3>
-              <p>From premium, detailed house cleaning to professional lawn mowing and garden maintenance, we handle the hard work to keeo your indoor and outdoor spaces looking immaculate.</p>
+              <p>From premium, detailed house cleaning to professional lawn mowing and garden maintenance, we handle the hard work to keep your indoor and outdoor spaces looking immaculate.</p>
             </article>
             <article class="card service-card">
               <p class="service-label">Spirit</p>
@@ -165,7 +165,7 @@
           <div class="gallery-grid" aria-label="Before and after gallery">
             <a class="gallery-card" href="gallery/gallery-1.html">
               <figure>
-                <img src="assets/gallery/blinds-progress.JPG" alt="preview blinds" />
+                <img src="assets/gallery/blinds-progress.JPG" alt="Window blinds being carefully cleaned during a home care visit" />
                 <figcaption>
                   <strong>Thorough</strong>
                   <span>Looking beyond the everyday; make the biggest difference.</span>
@@ -174,28 +174,28 @@
             </a>
             <a class="gallery-card" href="gallery/gallery-2.html">
               <figure>
-                <img src="assets/gallery/shower-b.JPG" alt="Before: Bathroom" />
+                <img src="assets/gallery/shower-a.JPG" alt="Bathroom shower area after careful cleaning support" />
                 <figcaption>
-                  <strong>Before: Bathroom</strong>
-                  <span>The little things build up over time.</span>
+                  <strong>Bathroom Care</strong>
+                  <span>Steady detail work for high-use spaces.</span>
                 </figcaption>
               </figure>
             </a>
             <a class="gallery-card" href="gallery/gallery-3.html">
               <figure>
-                <img src="assets/gallery/shower-a.JPG" alt="After: Bathroom" />
+                <img src="assets/gallery/shower-a-2.JPG" alt="Detailed bathroom shower cleaning result" />
                 <figcaption>
-                  <strong>After: Bathroom</strong>
-                  <span>Fresh and revitalised!</span>
+                  <strong>Careful Reset</strong>
+                  <span>A focused reset to create more calm and breathing room.</span>
                 </figcaption>
               </figure>
             </a>
             <a class="gallery-card" href="gallery/gallery-4.html">
               <figure>
-                <img src="assets/gallery/pantry.after.JPG" alt="Pantry reset" />
+                <img src="assets/gallery/shower-b.JPG" alt="Bathroom shower area before a cleaning reset" />
                 <figcaption>
-                  <strong>Pantry Reset</strong>
-                  <span>Reorganised and stress-free!</span>
+                  <strong>Bathroom Reset</strong>
+                  <span>Practical help when a space needs extra attention.</span>
                 </figcaption>
               </figure>
             </a>
@@ -288,7 +288,7 @@
             </div>
           </div>
 
-          <form class="contact-form" action="#" method="post">
+          <form class="contact-form" action="/api/contact" method="post" novalidate>
             <div class="form-field">
               <label for="name">Name</label>
               <input type="text" id="name" name="name" autocomplete="name" required />
@@ -303,11 +303,11 @@
             </div>
             <div class="form-field">
               <label for="location">Suburb / Location</label>
-              <input type="text" id="location" name="location" autocomplete="address-level2" />
+              <input type="text" id="location" name="suburb" autocomplete="address-level2" />
             </div>
             <div class="form-field">
               <label for="support-type">Type of support needed</label>
-              <select id="support-type" name="support-type">
+              <select id="support-type" name="supportType">
                 <option>General cleaning</option>
                 <option>Decluttering / organising</option>
                 <option>Home reset</option>
@@ -317,7 +317,7 @@
             </div>
             <div class="form-field">
               <label for="contact-method">Preferred contact method</label>
-              <select id="contact-method" name="contact-method">
+              <select id="contact-method" name="preferredContact">
                 <option>Email</option>
                 <option>Phone</option>
                 <option>Text message</option>
@@ -325,9 +325,10 @@
             </div>
             <div class="form-field form-field-full">
               <label for="message">Message</label>
-              <textarea id="message" name="message" rows="5"></textarea>
+              <textarea id="message" name="message" rows="5" required></textarea>
             </div>
-            <p class="form-note">This form is ready for connection to email or a form service.</p>
+            <input type="text" name="company" tabindex="-1" autocomplete="off" class="hidden-field" aria-hidden="true" />
+            <p class="form-note" role="status" aria-live="polite"></p>
             <button class="button form-button" type="submit">Send Enquiry</button>
           </form>
         </div>

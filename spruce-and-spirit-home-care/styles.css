@@ -685,9 +685,30 @@ textarea {
   font-size: 0.94rem;
 }
 
+.form-note.is-success {
+  color: #315d36;
+}
+
+.form-note.is-error {
+  color: #8a2f21;
+}
+
 .form-button {
   width: 100%;
   border: 0;
+}
+
+.form-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.hidden-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 
 .site-footer {
