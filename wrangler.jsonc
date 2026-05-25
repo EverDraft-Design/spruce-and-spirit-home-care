@@ -10,6 +10,10 @@
     "directory": "spruce-and-spirit-home-care",
     "binding": "ASSETS"
   },
+  "vars": {
+    "CONTACT_TO_EMAIL": "spruceandspirit@outlook.com",
+    "CONTACT_FROM_EMAIL": "website@spruceandspirit.com.au"
+  },
   "compatibility_flags": [
     "nodejs_compat"
   ]
