@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "spruce-and-spirit-home-care",
+  "compatibility_date": "2026-05-15",
+  "main": "src/index.js",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "spruce-and-spirit-home-care",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "CONTACT_TO_EMAIL": "spruceandspirit@outlook.com",
+    "CONTACT_FROM_EMAIL": "website@send.spruceandspirit.com.au"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
