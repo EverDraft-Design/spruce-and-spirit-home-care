@@ -558,6 +558,25 @@ p {
   padding: 1.25rem;
 }
 
+.testimonial-grid:has(.testimonial-card:only-child) {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 760px;
+}
+
+.testimonial-card blockquote {
+  margin: 0;
+  color: var(--charcoal);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.12rem, 2.5vw, 1.4rem);
+  line-height: 1.65;
+}
+
+.testimonial-card .testimonial-author {
+  margin: 1rem 0 0;
+  color: var(--charcoal);
+  font-weight: 800;
+}
+
 .coming-soon {
   width: fit-content;
   margin: 0;
