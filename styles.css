@@ -486,6 +486,17 @@ p {
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
+.gallery-group-title {
+  margin: 2rem 0 1rem;
+  color: var(--charcoal);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+}
+
+.section-heading + .gallery-group-title {
+  margin-top: 0;
+}
+
 .gallery-card:hover {
   transform: translateY(-3px);
   border-color: rgba(156, 175, 136, 0.72);
